@@ -1,62 +1,52 @@
 import os
-import psycopg2
+import sqlite3
 
-# Does what it says on the tin. Creates a db connection from the secret and returns a connection object
+# Creates a new sqlite database if one doesn't already exist
+def createDatabase():
+    conn = sqlite3.connect('ancient_adventure.db')
+    with conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS players ([id] TEXT PRIMARY KEY, [name] TEXT, [highscore] INTEGER, [lifetimescore] INTEGER, [currentscore] INTEGER)")
+    conn.close()
+
+# Does what it says on the tin. Creates a db connection and returns a connection object
 def connectToDatabase():
-  conn = psycopg2.connect(os.environ['db_string'])
-  return conn
-
-# Takes an active database connection, player name, a new highscore, new lifetimescore and writes the new scores to the players db record
-# Ideally we'd have a player class and just pass a player object to this function to be written
-def updatePlayer(conn, playerId, highscore, lifetimescore):
-  with conn.cursor() as cur:
-    cur.execute("UPDATE players SET (highscore, lifetimescore)=(%(hs)s, %(ls)s) WHERE id=%(id)s;", {"id":playerId, "hs":highscore, "ls":lifetimescore})
-  conn.commit()
-  return
+    conn = sqlite3.connect('ancient_adventure.db')
+    return conn
 
 # Takes active db connection, a playerId, and a name then creates a new player record.
 def insertPlayer(conn, playerId, playerName):
-  with conn.cursor() as cur:
-    cur.execute("INSERT INTO players (id, name, highscore, lifetimescore, currentscore) VALUES (%(id)s, %(name)s, 0, 0, 0);", {"id":playerId, "name":playerName})
-  conn.commit()
-  return
+    with conn:
+        conn.execute("INSERT INTO players (id, name, highscore, lifetimescore, currentscore) VALUES (:id, :name, 0, 0, 0);", {"id":playerId, "name":playerName})
 
 # Takes a db connection and playerId, returns true if they exist
 def doesPlayerExist(conn, playerId):
-  with conn.cursor() as cur:
-    cur.execute("SELECT name FROM players WHERE id=%(id)s;", {"id":playerId})
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM players WHERE id=:id;", {"id":playerId})
     response = cur.fetchone()
-  if (response):
-    return True
-  return False
+    if response:
+            return True
+    return False
 
+# Takes a db connection and playerId, returns the players high score, lifetime score, and current score
 def selectScore(conn, playerId):
-  with conn.cursor() as cur:
-    cur.execute("SELECT highscore, lifetimescore, currentscore FROM players WHERE id=%(id)s;", {"id":playerId})
+    cur = conn.cursor()
+    cur.execute("SELECT highscore, lifetimescore, currentscore FROM players WHERE id=:id;", {"id":playerId})
     highscore, lifetimescore, currentscore = cur.fetchone()
-  return highscore, lifetimescore, currentscore
+    return highscore, lifetimescore, currentscore
 
-def isPlayerInGame(conn, playerId):
-  with conn.cursor() as cur:
-    cur.execute("SELECT inGame FROM players WHERE id=%(id)s;", {"id":playerId})
-    response = cur.fetchone()
-  return response[0]
-
+# Takes a db connection, playerId, and score. If the supplied score is 0, it sets the players current score to 0. Otherwise it adds the supplied integer to the players current score.
 def updateScore(conn, playerId, score):
-  with conn.cursor() as cur:
-    if score == 0:
-      cur.execute("UPDATE players SET currentscore = 0 WHERE id=%(id)s;", {"id":playerId})
-    else:
-      cur.execute("UPDATE players SET currentscore = currentscore + %(score)s WHERE id=%(id)s;", {"id":playerId, "score":score})
-  conn.commit()
-  return
+    with conn:
+        if score == 0:
+            conn.execute("UPDATE players SET currentscore = 0 WHERE id=:id;", {"id":playerId})
+        else:
+            conn.execute("UPDATE players SET currentscore = currentscore + :score  WHERE id=:id;", {"id":playerId, "score":score})
 
+# Takes a db connection and playerId, updates the players lifetime score, high score (if applicable),  and sets current score back to zero
 def finishGame(conn, playerId):
-  highscore, lifetimescore, currentscore = selectScore(conn, playerId)
-  with conn.cursor() as cur:
-    if currentscore > highscore:
-      cur.execute("UPDATE players SET highscore = currentscore WHERE id=%(id)s;", {"id":playerId})
-    cur.execute("UPDATE players SET lifetimescore = lifetimescore + currentscore WHERE id=%(id)s;", {"id":playerId})
-    cur.execute("UPDATE players SET currentscore = 0 WHERE id=%(id)s;", {"id":playerId})
-  conn.commit()
-  return
+    highscore, lifetimescore, currentscore = selectScore(conn, playerId)
+    with conn:
+        if currentscore > highscore:
+            conn.execute("UPDATE players SET highscore = currentscore WHERE id=:id;", {"id":playerId})
+        conn.execute("UPDATE players SET lifetimescore = lifetimescore + currentscore WHERE id=:id;", {"id":playerId})
+        conn.execute("UPDATE players SET currentscore = 0 WHERE id=:id;", {"id":playerId})
