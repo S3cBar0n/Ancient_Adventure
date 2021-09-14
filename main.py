@@ -29,7 +29,7 @@ from threading import Thread
 
 def bot():
     # Prefix for my commands
-    client = commands.Bot(command_prefix="@", help_command=None)
+    client = commands.Bot(command_prefix=">", help_command=None)
 
 
     # Loads our cogs library
