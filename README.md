@@ -17,7 +17,7 @@ We wanted to create a unique project that allowed us to pool our collective know
 Our project is a Discord bot based Text Adventure game. The player will have a thrilling story about escaping an unknown building they have been thrust into.
 
 ## How to use it
-Coming soon to a Discord server near you...
+Create an application in the Discord Developer portal, create a bot, add it to a server, and then copy the bot token into a file called secret.txt in the same directory as main.py. Run main.py.
 
 ## How we built it
 Our project is built upon python, we utilize the discord.py library to create the bot features. We are utilizing a Linode Cloud VM to host our CockroachDB Database with a Domain.com Domain for easy access, a Google Cloud Linux VM is hosting our project/hackathon website utilizing a GoDaddy Registry domain, and Replit to host our code base and was what enabled us to easily collaborate.

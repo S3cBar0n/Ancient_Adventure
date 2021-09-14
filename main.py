@@ -29,7 +29,7 @@ from threading import Thread
 
 def bot():
     # Prefix for my commands
-    client = commands.Bot(command_prefix=">", help_command=None)
+    client = commands.Bot(command_prefix="@", help_command=None)
 
 
     # Loads our cogs library
@@ -57,7 +57,10 @@ def bot():
         if filename.endswith(".py"):
             client.load_extension(f"cogs.{filename[:-3]}")
 
-    client.run(os.environ['bot_token'])
+    # Read in the bot token from the file secret.txt and then run it
+    with open('secret.txt', 'r') as file:
+        bot_token = file.read()
+    client.run(bot_token)
 
 if __name__ == '__main__':
     # Thread(target=main()).start()
