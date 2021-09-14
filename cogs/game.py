@@ -9,10 +9,10 @@ from utils import sleeping
 items = ['knife', 'sword', 'shield', 'invisibility potion']
 user_items = []
 
-
 class Game(commands.Cog):
     def __init__(self, client):
         self.client = client  # this allows us to access the client within our cog
+        db.createDatabase()
         self.conn = db.connectToDatabase()
 
     @commands.command()
