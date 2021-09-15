@@ -5,10 +5,10 @@ Ancient Adventure is a discord bot that is based off of text adventure games.
 This was created for the 2021 MLH PreHackstoric Hackathon.
 
 ## Contributors
-* Abhiram
+* [Abhiram (gullapalli9482)](https://github.com/gullapalli9482)
 * [Jason B. (noUsernamesLef7)](https://github.com/noUsernamesLef7)
-* Easton
-* Ethan
+* [Easton (easton57)](https://github.com/easton57)
+* [Ethan (S3cBar0n)](https://github.com/S3cBar0n)
 
 ## Inspiration
 We wanted to create a unique project that allowed us to pool our collective knowledge, so we could all equally contribute to the project and hopefully learn some new skills from one another!
